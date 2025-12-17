@@ -1,0 +1,206 @@
+
+
+<ion-progress-bar [value]="progress"></ion-progress-bar>
+
+
+<ion-grid (click)="clickScreen()" >
+
+  <ion-row class="staff-header" >
+    <div class="staff-name">
+      <h1>{{activeStaffMember['name']}}</h1>
+    </div>
+  </ion-row>
+
+  <ion-row>
+    <ion-col>
+      <div class="card">
+        <div class="card-body">
+          <h2>($) Services</h2>
+          <img *ngIf="activeStaffMember['revenue']['progressColour'] == 'success'" src="/assets/face-smile-solid.svg" alt="">
+          <img *ngIf="activeStaffMember['revenue']['progressColour'] == 'danger'" src="/assets/face-sad-tear-solid.svg" alt="">
+          <img *ngIf="activeStaffMember['revenue']['progressColour'] == 'close'" src="/assets/face-fearful-solid.svg" alt="">
+          <div class="numbers-div">
+            <div class="row">
+              <div class="col-6">
+                <div class="numbers-block">
+                  <div class="descriptor">
+                    <span>This Week</span>
+                  </div>
+                  <div class="value">
+                    <span
+                      [ngClass]="{
+                      'text-success': activeStaffMember['revenue']['progressColour'] == 'success',
+                      'text-danger': activeStaffMember['revenue']['progressColour'] == 'danger',
+                      'text-warning': activeStaffMember['revenue']['progressColour'] == 'close'
+                      }"
+                    >
+                    {{activeStaffMember['revenue']['actual'] | currency: 'USD' : 'symbol' : '1.0-0'}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="numbers-block">
+                  <div class="descriptor">
+                    <span>Target</span>
+                  </div>
+                  <div class="value">
+                    <span>{{activeStaffMember['revenue']['target'] | currency: 'USD' : 'symbol' : '1.0-0'}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pulse-descriptor">
+            <span>Your Progress</span>
+          </div>
+          <div class="pulse-chart">
+            <div
+              [@progressBar]="{value:pulseProgressVal,params:{flex_val:activeStaffMember['revenue']['flexStyle'],time:'1000ms'}}"
+              [ngClass]="{
+                'success-bg-striped': activeStaffMember['revenue']['progressColour'] == 'success',
+                'danger-bg-striped': activeStaffMember['revenue']['progressColour'] == 'danger',
+                'warning-bg-striped': activeStaffMember['revenue']['progressColour'] == 'close'
+              }"
+              class="progress"
+            ></div>
+          </div>
+
+          <div class="pulse-descriptor">
+            <span>% Week Completed</span>
+          </div>
+          <div class="week-completed">
+            <div [@progressBar]="{value:pulseProgressVal,params:{flex_val:activeStaffMember['weekPercentCompleted'],time:'1000ms'}}" class="progress"></div>
+          </div>
+
+        </div>
+      </div>
+    </ion-col>
+    <ion-col>
+      <div class="card" >
+        <div class="card-body">
+          <h2>(%) Rebookings</h2>
+          <img *ngIf="activeStaffMember['rebooking']['progressColour'] == 'success'" src="/assets/face-smile-solid.svg" alt="">
+          <img *ngIf="activeStaffMember['rebooking']['progressColour'] == 'danger'" src="/assets/face-sad-tear-solid.svg" alt="">
+          <img *ngIf="activeStaffMember['rebooking']['progressColour'] == 'close'" src="/assets/face-fearful-solid.svg" alt="">
+          <div class="numbers-div">
+            <div class="row">
+              <div class="col-6">
+                <div class="numbers-block">
+                  <div class="descriptor">
+                    <span>This Week</span>
+                  </div>
+                  <div class="value">
+                    <span
+                      [ngClass]="{
+                        'text-success': activeStaffMember['rebooking']['progressColour'] == 'success',
+                        'text-danger': activeStaffMember['rebooking']['progressColour'] == 'danger',
+                        'text-warning': activeStaffMember['rebooking']['progressColour'] == 'close'
+                      }"
+                      class="text-danger"
+                    >{{activeStaffMember['rebooking']['actual'] | percent }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="numbers-block">
+                  <div class="descriptor">
+                    <span>Target</span>
+                  </div>
+                  <div class="value">
+                    <span>{{activeStaffMember['rebooking']['target'] | percent }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pulse-descriptor">
+            <span>Your Progress</span>
+          </div>
+          <div class="pulse-chart">
+            <div
+              [@progressBar]="{value:pulseProgressVal,params:{flex_val:activeStaffMember['rebooking']['flexStyle'],time:'1000ms'}}"
+              [ngClass]="{
+                'success-bg-striped': activeStaffMember['rebooking']['progressColour'] == 'success',
+                'danger-bg-striped': activeStaffMember['rebooking']['progressColour'] == 'danger',
+                'warning-bg-striped': activeStaffMember['rebooking']['progressColour'] == 'close'
+              }"
+              class="progress"
+            ></div>
+          </div>
+
+          <div class="pulse-descriptor">
+            <span>% Week Completed</span>
+          </div>
+          <div class="week-completed">
+            <div [@progressBar]="{value:pulseProgressVal,params:{flex_val:activeStaffMember['weekPercentCompleted'],time:'1000ms'}}" class="progress"></div>
+          </div>
+        </div>
+      </div>
+    </ion-col>
+  </ion-row>
+
+  <ion-row>
+    <ion-col>
+      <div class="card">
+        <div class="card-body retail">
+
+
+          <div class="header">
+            <img src="/assets/shopping.svg" alt="">
+            <h2>Retail</h2>
+          </div>
+
+          <div class="measure">
+            <div class="numbers-block">
+              <div class="descriptor">
+                <span>(#) Products</span>
+              </div>
+              <div class="value">
+                <span
+                  [ngClass]="{
+                    'text-success': activeStaffMember['retail']['progressColour'] == 'success',
+                    'text-danger': activeStaffMember['retail']['progressColour'] == 'danger',
+                    'text-warning': activeStaffMember['retail']['progressColour'] == 'close'
+                  }"
+                  class="text-danger"
+                >{{activeStaffMember['retail']['actualUnits'] | number }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="measure">
+            <div class="numbers-block">
+              <div class="descriptor">
+                <span>($) Products</span>
+              </div>
+              <div class="value">
+                <span
+                  [ngClass]="{
+                    'text-success': activeStaffMember['retail']['progressColour'] == 'success',
+                    'text-danger': activeStaffMember['retail']['progressColour'] == 'danger',
+                    'text-warning': activeStaffMember['retail']['progressColour'] == 'close'
+                  }"
+                  class="text-danger"
+                >{{activeStaffMember['retail']['actualRevenue'] | currency: 'USD' : 'symbol' : '1.0-0' }}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </ion-col>
+  </ion-row>
+</ion-grid>
+
+<div class="button-div">
+  <ion-button (click)="onSettingsClick()">
+    <ion-icon class="settings-icon" name="settings-outline"></ion-icon>
+    Settings
+  </ion-button>
+</div>
+
+
+

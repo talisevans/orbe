@@ -1,0 +1,67 @@
+
+
+<ion-content>
+
+  <ion-grid>
+
+    <ion-row class="logo-row" >
+      <ion-col>
+        <div class="logo">
+          <img src="assets/orbe.png" alt="">
+        </div>
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="centre-row" >
+      <ion-col size="6" >
+        <ion-card class="login-card" >
+          <div class="login-details">
+
+            <form #f="ngForm" >
+
+              <ion-item fill="solid" class="mb-4" >
+                <ion-label position="floating">User</ion-label>
+                <ion-input
+                  type="text"
+                  ngModel
+                  name="username"
+                  required
+                ></ion-input>
+              </ion-item>
+
+              <ion-item fill="solid" class="mb-4">
+                <ion-label position="floating">Password</ion-label>
+                <ion-input
+                  type="password"
+                  ngModel
+                  name="password"
+                  required
+                ></ion-input>
+              </ion-item>
+
+              <ion-button type="submit" (click)="onLogin()" [disabled]="!f.valid" >Login</ion-button>
+
+            </form>
+
+          </div>
+        </ion-card>
+      </ion-col>
+
+    </ion-row>
+  </ion-grid>
+
+
+
+</ion-content>
+
+
+<div class="container">
+  <div class="row">
+
+  </div>
+</div>
+
+<div  [ngClass]="{ 'show': isLoading }" class="loading-spinner">
+  <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+  <h2>Loading...</h2>
+</div>

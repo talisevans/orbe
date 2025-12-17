@@ -1,0 +1,82 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Data Files - CSV, Excel, Parquet
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.json
+*.pickle
+*.pkl
+
+# Temporary files and directories
+tmp/
+temp/
+*.tmp
+
+# GCP Credentials (if stored locally)
+*-credentials.json
+*-key.json
+service-account*.json
+
+# Environment variables and secrets
+.env
+.env.local
+*.pem
+*.key
+
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Debug files
+debug_*.csv
+debug_*.xlsx

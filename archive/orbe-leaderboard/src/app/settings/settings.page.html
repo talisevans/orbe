@@ -1,0 +1,116 @@
+<ion-header>
+  <ion-toolbar>
+
+    <ion-title>Dashboard Settings</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Staff Budgets</ion-card-title>
+            <ion-card-subtitle>Add Budgets for Staff</ion-card-subtitle>
+          </ion-card-header>
+
+          <ion-card-content>
+
+            <div class="loding-holder" [ngClass]="{ 'show': isLoading }" >
+              <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            </div>
+
+            <form #f="ngForm" >
+              <table class="table" [ngClass]="{ 'hiding-load': isLoading }" >
+                <thead>
+                  <tr>
+                    <th scope="col">Staff Name</th>
+                    <th scope="col">Revenue Target</th>
+                    <th scope="col">Rebooking Target</th>
+                    <th scope="col">Show on Dashboard?</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let staffData of staffDataArray">
+                    <td>{{staffData['employeeName']}}</td>
+                    <td>
+                      <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          [(ngModel)]="staffDataset[staffData['EmployeeId'] + '---targetIncome']"
+                          name="{{staffData['EmployeeId'] + '---targetIncome'}}"
+                        >
+                        <span class="input-group-text">.00</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="input-group">
+                        <input
+                          type="number"
+                          class="form-control"
+                          [(ngModel)]="staffDataset[staffData['EmployeeId'] + '---targetRebookings']"
+                          name="{{staffData['EmployeeId'] + '---targetRebookings' }}"
+                        >
+                        <span class="input-group-text">%</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="form-check">
+                        <input
+                            class="form-check-input big-checkbox"
+                            type="checkbox"
+                            [(ngModel)]="staffDataset[staffData['EmployeeId'] + '---showEmployee']"
+                            [ngModelOptions]="{standalone: true}"
+
+                          >
+                        <label class="form-check-label" for="flexCheckDefault">
+                          Include
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+
+
+                </tbody>
+              </table>
+            </form>
+
+          </ion-card-content>
+        </ion-card>
+
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+
+        <div class="save-navigation">
+
+          <ion-button (click)="onSubmit()" color="success">
+            <ion-icon name="save-outline"></ion-icon>
+            Save
+          </ion-button>
+
+          <ion-button (click)="dashboardNavigate()" >
+            <ion-icon name="arrow-back-outline"></ion-icon>
+            Dashboard
+          </ion-button>
+
+        </div>
+
+
+
+
+
+      </ion-col>
+
+    </ion-row>
+
+  </ion-grid>
+
+</ion-content>

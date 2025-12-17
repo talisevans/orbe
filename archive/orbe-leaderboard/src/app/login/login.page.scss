@@ -1,0 +1,48 @@
+.logo{
+  width: 100%;
+  text-align: center;
+
+  img{
+    width: 150px;
+  }
+
+}
+
+
+.logo-row{
+  max-height: 30vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-details{
+  padding: 20px;
+}
+
+
+.centre-row{
+  display: flex;
+  justify-content: center;
+}
+
+
+
+
+
+.loading-spinner{
+  position: absolute;
+  display: none;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: white;
+
+  &.show{
+    display: flex;
+  }
+
+
+}
