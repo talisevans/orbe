@@ -107,55 +107,70 @@ def email_report(recipient_emails, subject, body, attachment_path):
 # Initialize GCP Bucket
 GCPBucket = GCPBucket("orbe_shortcuts", "australia-southeast2")
 
-# Get data from GCP Bucket
-print('Fetching data from GCP Bucket...')
-appointments_df = GCPBucket.getAppointments("nth_adl")
-sales_transactions_df = GCPBucket.getSalesTransactions("nth_adl")
-productive_hours_df = GCPBucket.getProductiveHours("nth_adl")
-clients_df = GCPBucket.load_latest_parquet("Client", "nth_adl")
-staff_df = GCPBucket.load_latest_parquet("EmployeeSite", "nth_adl")
-reporting_categories = GCPBucket.load_latest_parquet("ServiceSiteReportCategories", "nth_adl")
+# declare proper location name lookups
+location_name_mappings = {
+    "nth_adl": "Orbe North Adelaide"
+}
 
-# Create the Orbe ETL object
-print('Building datasets...')
-orbe_etl = Orbe_ETL(
-    appointments_df=appointments_df,
-    sales_transactions_df=sales_transactions_df,
-    productive_hours_df=productive_hours_df,
-    clients_df=clients_df,
-    staff_df=staff_df,
-    reporting_categories=reporting_categories
-)
+# loop through the different locations
+for location in ["nth_adl"]:
 
-# Build datasets
-detail_df = orbe_etl.build_detail_dataset()
-rebooking_df = orbe_etl.build_rebooking_dataset()
+    # proper name lookup
+    location_name = location_name_mappings[location]
 
-# Create the weekly report generator
-print('Generating weekly reports...')
-report_gen = WeeklyReportGenerator(
-    detail_df=detail_df,
-    rebooking_df=rebooking_df,
-    productive_hours_df=productive_hours_df,
-    clients_df=clients_df,
-    staff_df=staff_df,
-    logo_path='orbe_etl/img/orbe-logo.png'
-)
+    # Get data from GCP Bucket
+    print('Fetching data from GCP Bucket...')
+    appointments_df = GCPBucket.getAppointments("nth_adl")
+    sales_transactions_df = GCPBucket.getSalesTransactions("nth_adl")
+    productive_hours_df = GCPBucket.getProductiveHours("nth_adl")
+    clients_df = GCPBucket.load_latest_parquet("Client", "nth_adl")
+    staff_df = GCPBucket.load_latest_parquet("EmployeeSite", "nth_adl")
+    reporting_categories = GCPBucket.load_latest_parquet("ServiceSiteReportCategories", "nth_adl")
 
-# Generate all weeks up to last Sunday
-report_gen.generate_all_weeks()
+    # Create the Orbe ETL object
+    print('Building datasets...')
+    orbe_etl = Orbe_ETL(
+        appointments_df=appointments_df,
+        sales_transactions_df=sales_transactions_df,
+        productive_hours_df=productive_hours_df,
+        clients_df=clients_df,
+        staff_df=staff_df,
+        reporting_categories=reporting_categories
+    )
 
-# Save the workbook
-output_filename = f'weekly_performance_report_{datetime.now().strftime("%Y%m%d")}.xlsx'
-report_gen.save('tmp/' + output_filename)
+    # Build datasets
+    detail_df = orbe_etl.build_detail_dataset()
+    rebooking_df = orbe_etl.build_rebooking_dataset()
 
-# email the report
-print('Emailing the report...')
-email_report(
-    recipient_emails=['talis.evans@gmail.com'],
-    subject='Weekly Performance Report',
-    body='Please find attached the latest weekly performance report.',
-    attachment_path='tmp/' + output_filename
-)
+    # Create the weekly report generator
+    print('Generating weekly reports...')
 
-print("All Done!")
+    # Determine logo path (container vs local)
+    logo_path = 'img/orbe-logo.png' if Path('img/orbe-logo.png').exists() else 'orbe_etl/img/orbe-logo.png'
+
+    report_gen = WeeklyReportGenerator(
+        detail_df=detail_df,
+        rebooking_df=rebooking_df,
+        productive_hours_df=productive_hours_df,
+        clients_df=clients_df,
+        staff_df=staff_df,
+        logo_path=logo_path
+    )
+
+    # Generate all weeks up to last Sunday
+    report_gen.generate_all_weeks()
+
+    # Save the workbook
+    output_filename = f'{location_name}_weekly_performance_report_{datetime.now().strftime("%Y%m%d")}.xlsx'
+    report_gen.save('tmp/' + output_filename)
+
+    # email the report
+    print('Emailing the report...')
+    email_report(
+        recipient_emails=['joe@orbe.com.au', 'talis.evans@gmail.com'],
+        subject=f'Weekly Performance Report - {location_name}', 
+        body=f'Please find attached the latest weekly performance report for {location_name}.',
+        attachment_path='tmp/' + output_filename
+    )
+
+    print("All Done!")

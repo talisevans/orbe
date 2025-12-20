@@ -1,0 +1,31 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/orbe-etl:$BUILD_ID'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/orbe-etl:latest'
+      - '-f'
+      - 'orbe_etl/Dockerfile'
+      - '.'
+
+  # Push the image with build ID tag
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/orbe-etl:$BUILD_ID'
+
+  # Push the image with latest tag
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/orbe-etl:latest'
+
+images:
+  - 'gcr.io/$PROJECT_ID/orbe-etl:$BUILD_ID'
+  - 'gcr.io/$PROJECT_ID/orbe-etl:latest'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
