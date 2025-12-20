@@ -7,6 +7,7 @@ Each week runs Monday to Sunday.
 
 import pandas as pd
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
@@ -35,6 +36,7 @@ class WeeklyReportGenerator:
         self.clients_df = clients_df
         self.staff_df = staff_df
         self.logo_path = logo_path
+        self.timezone = ZoneInfo('Australia/Adelaide')
         self.workbook = Workbook()
         # Remove default sheet
         if 'Sheet' in self.workbook.sheetnames:
@@ -51,7 +53,7 @@ class WeeklyReportGenerator:
             List of tuples: [(week_start, week_end, week_number), ...]
         """
         if end_date is None:
-            end_date = datetime.now().date()
+            end_date = datetime.now(self.timezone).date()
 
         # Find the last Sunday before or on end_date
         days_since_sunday = (end_date.weekday() + 1) % 7
