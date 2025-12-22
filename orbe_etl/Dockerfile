@@ -1,6 +1,13 @@
 # Use Python 3.14 slim image
 FROM python:3.14-slim
 
+# Set timezone to Australia/Adelaide
+ENV TZ=Australia/Adelaide
+RUN apt-get update && apt-get install -y tzdata && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Set working directory
 WORKDIR /app
 

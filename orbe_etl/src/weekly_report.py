@@ -13,6 +13,7 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.drawing.image import Image
 import os
+from openpyxl.formatting.rule import CellIsRule
 
 
 class WeeklyReportGenerator:
@@ -119,12 +120,12 @@ class WeeklyReportGenerator:
             report_categories = week_detail_df[week_detail_df['ItemTypeStringCode'] == 'ItemType.Service']['ReportCategory'].unique().tolist()
             report_categories = [item for item in report_categories if pd.notna(item)]
 
-        # Calculate end column for background (report category columns + Total + spacer + productive hours + 1 extra)
+        # Calculate end column for background (report category columns + Total + spacer + products + spacer + productive hours + 1 extra)
         # Report category columns start at N (column 14, 1-indexed)
         service_start_col = 13  # Column N is index 13 (0-indexed)
         total_col_index = service_start_col + len(report_categories) + 1  # +1 for Total column
-        # After service Total: spacer (+1), productive hours (+2), extra column (+3)
-        end_col_for_bg = total_col_index + 3  # +3 for spacer, productive hours, and 1 extra
+        # After service Total: spacer (+1), products sales (+2), products units (+3), spacer (+4), productive hours (+5), extra column (+6)
+        end_col_for_bg = total_col_index + 6  # +6 for spacer, products (2 cols), spacer, productive hours, and 1 extra
 
         # build the staff dataset for this week
         staff_dataset = self.buildStaffDataset(
@@ -151,8 +152,8 @@ class WeeklyReportGenerator:
 
         # Apply styling and structure
         self._setup_header_section(ws, week_number, week_start, week_end, end_col_for_bg)
-        productive_hours_col_letter = self._setup_main_table_structure(ws, week_detail_df)
-        total_row = self._populate_data(ws, staff_dataset, report_categories, productive_hours_col_letter, unique_returning_clients, unique_new_clients)
+        products_sales_col_letter, products_units_col_letter, productive_hours_col_letter = self._setup_main_table_structure(ws, week_detail_df)
+        total_row = self._populate_data(ws, staff_dataset, report_categories, products_sales_col_letter, products_units_col_letter, productive_hours_col_letter, unique_returning_clients, unique_new_clients)
         self._add_summary_metrics(ws, total_row, staff_dataset, unique_returning_clients, unique_new_clients)
         self._apply_styling(ws)
 
@@ -426,15 +427,50 @@ class WeeklyReportGenerator:
         ws[f'{total_col_letter}8'].border = white_border
         ws[f'{total_col_letter}7'].border = white_border  # Also apply border to merged header cell
 
-        # (#) Productive Hours section comes after service Total
+        # Products section comes after the services Total
         # Add spacer column first
-        spacer_col_index = total_col_index + 1
-        spacer_col_letter = get_column_letter(spacer_col_index)
-        ws[f'{spacer_col_letter}7'].fill = PatternFill(start_color="757171", end_color="757171", fill_type="solid")
-        ws[f'{spacer_col_letter}8'].fill = PatternFill(start_color="757171", end_color="757171", fill_type="solid")
+        spacer_col_index_1 = total_col_index + 1
+        spacer_col_letter_1 = get_column_letter(spacer_col_index_1)
+        ws[f'{spacer_col_letter_1}7'].fill = PatternFill(start_color="757171", end_color="757171", fill_type="solid")
+        ws[f'{spacer_col_letter_1}8'].fill = PatternFill(start_color="757171", end_color="757171", fill_type="solid")
+
+        # Products section columns
+        products_sales_col_index = spacer_col_index_1 + 1
+        products_units_col_index = products_sales_col_index + 1
+        products_sales_col_letter = get_column_letter(products_sales_col_index)
+        products_units_col_letter = get_column_letter(products_units_col_index)
+
+        # Row 7: Products section header (merged across both columns)
+        ws.merge_cells(f'{products_sales_col_letter}7:{products_units_col_letter}7')
+        ws[f'{products_sales_col_letter}7'] = 'Products'
+        ws[f'{products_sales_col_letter}7'].font = Font(color="FFFFFF", bold=True, size=11)
+        ws[f'{products_sales_col_letter}7'].fill = PatternFill(start_color="3A3838", end_color="3A3838", fill_type="solid")
+        ws[f'{products_sales_col_letter}7'].alignment = Alignment(horizontal='center', vertical='center')
+        ws[f'{products_sales_col_letter}7'].border = white_border
+        ws[f'{products_units_col_letter}7'].border = white_border
+
+        # Row 8: Products column headers
+        ws[f'{products_sales_col_letter}8'] = '($) Sales'
+        ws[f'{products_sales_col_letter}8'].font = Font(color="FFFFFF", bold=True, size=9)
+        ws[f'{products_sales_col_letter}8'].fill = PatternFill(start_color="3A3838", end_color="3A3838", fill_type="solid")
+        ws[f'{products_sales_col_letter}8'].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        ws[f'{products_sales_col_letter}8'].border = white_border
+
+        ws[f'{products_units_col_letter}8'] = 'Units'
+        ws[f'{products_units_col_letter}8'].font = Font(color="FFFFFF", bold=True, size=9)
+        ws[f'{products_units_col_letter}8'].fill = PatternFill(start_color="3A3838", end_color="3A3838", fill_type="solid")
+        ws[f'{products_units_col_letter}8'].alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        ws[f'{products_units_col_letter}8'].border = white_border
+
+        # (#) Productive Hours section comes after Products
+        # Add spacer column
+        spacer_col_index_2 = products_units_col_index + 1
+        spacer_col_letter_2 = get_column_letter(spacer_col_index_2)
+        ws[f'{spacer_col_letter_2}7'].fill = PatternFill(start_color="757171", end_color="757171", fill_type="solid")
+        ws[f'{spacer_col_letter_2}8'].fill = PatternFill(start_color="757171", end_color="757171", fill_type="solid")
 
         # Productive Hours column
-        productive_hours_col_index = spacer_col_index + 1
+        productive_hours_col_index = spacer_col_index_2 + 1
         productive_hours_col_letter = get_column_letter(productive_hours_col_index)
 
         # Row 7: Section header
@@ -459,8 +495,13 @@ class WeeklyReportGenerator:
             'M': 2
         }
 
+        # Set width for products spacer and columns
+        column_widths[spacer_col_letter_1] = 2
+        column_widths[products_sales_col_letter] = 10
+        column_widths[products_units_col_letter] = 10
+
         # Set width for productive hours spacer and column
-        column_widths[spacer_col_letter] = 2
+        column_widths[spacer_col_letter_2] = 2
         column_widths[productive_hours_col_letter] = 10
 
         # Add dynamic report category column widths
@@ -471,9 +512,9 @@ class WeeklyReportGenerator:
         for col, width in column_widths.items():
             ws.column_dimensions[col].width = width
 
-        return productive_hours_col_letter
+        return products_sales_col_letter, products_units_col_letter, productive_hours_col_letter
 
-    def _populate_data(self, ws, staff_dataset, report_categories, productive_hours_col_letter, unique_returning_clients, unique_new_clients):
+    def _populate_data(self, ws, staff_dataset, report_categories, products_sales_col_letter, products_units_col_letter, productive_hours_col_letter, unique_returning_clients, unique_new_clients):
         """
         Populate the worksheet with calculated data from the staff dataset.
 
@@ -481,6 +522,8 @@ class WeeklyReportGenerator:
             ws: Worksheet object
             staff_dataset: DataFrame with staff data for the week
             report_categories: List of report categories for this week
+            products_sales_col_letter: Column letter for products sales
+            products_units_col_letter: Column letter for products units
             productive_hours_col_letter: Column letter for productive hours
             unique_returning_clients: Unique count of returning clients for the week (to avoid double-counting)
             unique_new_clients: Unique count of new clients for the week (to avoid double-counting)
@@ -638,10 +681,36 @@ class WeeklyReportGenerator:
             ws[f'{total_col_letter}{current_row}'].border = white_border
             ws[f'{total_col_letter}{current_row}'].alignment = Alignment(horizontal='center', vertical='center')
 
+            # Spacer column before products
+            spacer_col_index_1 = total_col_index + 1
+            spacer_col_letter_1 = get_column_letter(spacer_col_index_1)
+            ws[f'{spacer_col_letter_1}{current_row}'].fill = PatternFill(start_color="757171", end_color="757171", fill_type="solid")
+
+            # Products ($) Sales
+            product_sales_val = staff_row.get('productSales', 0.0)
+            ws[f'{products_sales_col_letter}{current_row}'] = '-' if product_sales_val == 0 else product_sales_val
+            if product_sales_val != 0:
+                ws[f'{products_sales_col_letter}{current_row}'].number_format = '$#,##0'
+            ws[f'{products_sales_col_letter}{current_row}'].border = white_border
+            ws[f'{products_sales_col_letter}{current_row}'].alignment = Alignment(horizontal='right', vertical='center')
+            if alt_fill:
+                ws[f'{products_sales_col_letter}{current_row}'].fill = alt_fill
+            else:
+                ws[f'{products_sales_col_letter}{current_row}'].fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
+
+            # Products Units
+            product_units_val = staff_row.get('productUnits', 0)
+            ws[f'{products_units_col_letter}{current_row}'] = '-' if product_units_val == 0 else product_units_val
+            ws[f'{products_units_col_letter}{current_row}'].border = white_border
+            ws[f'{products_units_col_letter}{current_row}'].alignment = Alignment(horizontal='center', vertical='center')
+            if alt_fill:
+                ws[f'{products_units_col_letter}{current_row}'].fill = alt_fill
+            else:
+                ws[f'{products_units_col_letter}{current_row}'].fill = PatternFill(start_color="FFFFFF", end_color="FFFFFF", fill_type="solid")
+
             # Spacer column before productive hours
-            spacer_col_index = total_col_index + 1
-            spacer_col_letter = get_column_letter(spacer_col_index)
-            ws[f'{spacer_col_letter}{current_row}'].fill = PatternFill(start_color="757171", end_color="757171", fill_type="solid")
+            spacer_col_index_2 = get_column_letter(ord(products_units_col_letter) - ord('A') + 1 + 1)
+            ws[f'{spacer_col_index_2}{current_row}'].fill = PatternFill(start_color="757171", end_color="757171", fill_type="solid")
 
             # (#) Productive Hours
             productive_hours_val = staff_row.get('productiveHours', 0.0)
@@ -759,10 +828,29 @@ class WeeklyReportGenerator:
             ws[f'{total_col_letter}{total_row}'].border = white_border
             ws[f'{total_col_letter}{total_row}'].alignment = Alignment(horizontal='center', vertical='center')
 
+            # Spacer column before products in TOTAL row
+            spacer_col_index_1 = total_col_index + 1
+            spacer_col_letter_1 = get_column_letter(spacer_col_index_1)
+            ws[f'{spacer_col_letter_1}{total_row}'].fill = PatternFill(start_color="757171", end_color="757171", fill_type="solid")
+
+            # Products ($) Sales total
+            ws[f'{products_sales_col_letter}{total_row}'] = f'=SUM({products_sales_col_letter}{start_row}:{products_sales_col_letter}{current_row - 1})'
+            ws[f'{products_sales_col_letter}{total_row}'].font = Font(bold=True)
+            ws[f'{products_sales_col_letter}{total_row}'].fill = PatternFill(start_color="D9D9D9", end_color="D9D9D9", fill_type="solid")
+            ws[f'{products_sales_col_letter}{total_row}'].border = white_border
+            ws[f'{products_sales_col_letter}{total_row}'].alignment = Alignment(horizontal='right', vertical='center')
+            ws[f'{products_sales_col_letter}{total_row}'].number_format = '$#,##0'
+
+            # Products Units total
+            ws[f'{products_units_col_letter}{total_row}'] = f'=SUM({products_units_col_letter}{start_row}:{products_units_col_letter}{current_row - 1})'
+            ws[f'{products_units_col_letter}{total_row}'].font = Font(bold=True)
+            ws[f'{products_units_col_letter}{total_row}'].fill = PatternFill(start_color="D9D9D9", end_color="D9D9D9", fill_type="solid")
+            ws[f'{products_units_col_letter}{total_row}'].border = white_border
+            ws[f'{products_units_col_letter}{total_row}'].alignment = Alignment(horizontal='center', vertical='center')
+
             # Spacer column before productive hours in TOTAL row
-            spacer_col_index = total_col_index + 1
-            spacer_col_letter = get_column_letter(spacer_col_index)
-            ws[f'{spacer_col_letter}{total_row}'].fill = PatternFill(start_color="757171", end_color="757171", fill_type="solid")
+            spacer_col_index_2 = get_column_letter(ord(products_units_col_letter) - ord('A') + 1 + 1)
+            ws[f'{spacer_col_index_2}{total_row}'].fill = PatternFill(start_color="757171", end_color="757171", fill_type="solid")
 
             # Productive Hours total
             ws[f'{productive_hours_col_letter}{total_row}'] = f'=SUM({productive_hours_col_letter}{start_row}:{productive_hours_col_letter}{current_row - 1})'
@@ -824,8 +912,8 @@ class WeeklyReportGenerator:
                 full_name = f"{first_name} {surname}".strip()
 
             # filter data for this staff member
-            staff_rebooking = rebooking_df[rebooking_df['EmployeeId'] == staff_id] if not rebooking_df.empty else pd.DataFrame()
-            staff_detail_df = detail_df[detail_df['EmployeeId'] == staff_id] if not detail_df.empty else pd.DataFrame()
+            staff_rebooking = rebooking_df[rebooking_df['EmployeeId'] == staff_id].copy() if not rebooking_df.empty else pd.DataFrame()
+            staff_detail_df = detail_df[detail_df['EmployeeId'] == staff_id].copy() if not detail_df.empty else pd.DataFrame()
 
             # declare the dataset entry for this staff member
             staff_data = {
@@ -839,9 +927,11 @@ class WeeklyReportGenerator:
                 'rebookedNew': 0.0,  # Placeholder
 
                 'totalClients': 0,      # Placeholder
-
                 'totalSales': 0.0,      # Placeholder
                 'avgSales': 0.0,        # Placeholder
+
+                'productSales': 0.0,      # Placeholder
+                'productUnits': 0,        # Placeholder
 
                 'productiveHours': 0.0,   # Placeholder
 
@@ -878,8 +968,21 @@ class WeeklyReportGenerator:
 
             # sum the `LineExTaxAmount` from staff_detail_df for totalSales
             if not staff_detail_df.empty and 'LineExTaxAmount' in staff_detail_df.columns:
+                
+                # total sales
                 total_sales = staff_detail_df['LineExTaxAmount'].sum()
                 staff_data['totalSales'] = total_sales
+
+                # if the ItemTypeStringCode is 'ItemType.Product', sum the LineExTaxAmount and count units
+                product_sales_df = staff_detail_df[staff_detail_df['ItemTypeStringCode'] == 'ItemType.Product']
+                if not product_sales_df.empty:
+                    product_sales = product_sales_df['LineExTaxAmount'].sum()
+                    staff_data['productSales'] = product_sales
+
+                    # sum 'ItemQuantity' for product units sold
+                    if 'ItemQuantity' in product_sales_df.columns:
+                        product_units = product_sales_df['ItemQuantity'].sum()
+                        staff_data['productUnits'] = product_units
 
             # calculate avgSales as totalSales divided by totalClients
             total_clients = staff_data['returningClients'] + staff_data['newClients']
@@ -994,6 +1097,52 @@ class WeeklyReportGenerator:
         ws[f'C{summary_start_row + 2}'].number_format = '0%'  # Format as percentage
         ws[f'C{summary_start_row + 2}'].border = white_border
         ws[f'C{summary_start_row + 2}'].font = Font(bold=True)
+
+        # Blank spacer row
+        ws.row_dimensions[summary_start_row + 3].height = 15
+
+        # Row 4: ($) Total Wage Cost
+        ws[f'B{summary_start_row + 4}'] = '($) Total Wage Cost'
+        ws[f'B{summary_start_row + 4}'].font = Font(color="FFFFFF", size=11)
+        ws[f'B{summary_start_row + 4}'].fill = PatternFill(start_color="3A3838", end_color="3A3838", fill_type="solid")
+        ws[f'B{summary_start_row + 4}'].alignment = Alignment(horizontal='center', vertical='center')
+        ws[f'B{summary_start_row + 4}'].border = white_border
+        ws.row_dimensions[summary_start_row + 4].height = 26
+
+        # Total Wage Cost value (default 0 with conditional formatting)
+        ws[f'C{summary_start_row + 4}'] = 0
+        ws[f'C{summary_start_row + 4}'].fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")  # Yellow by default
+        ws[f'C{summary_start_row + 4}'].alignment = Alignment(horizontal='center', vertical='center')
+        ws[f'C{summary_start_row + 4}'].number_format = '$#,##0'
+        ws[f'C{summary_start_row + 4}'].border = white_border
+        ws[f'C{summary_start_row + 4}'].font = Font(bold=True)
+
+        # Add conditional formatting for wage cost cell (D9D9D9 when value is not 0, yellow when 0)
+        wage_cost_cell = f'C{summary_start_row + 4}'
+
+        # Rule: If cell value is not equal to 0, fill with D9D9D9
+        rule_not_zero = CellIsRule(
+            operator='notEqual',
+            formula=['0'],
+            fill=PatternFill(start_color="D9D9D9", end_color="D9D9D9", fill_type="solid")
+        )
+        ws.conditional_formatting.add(wage_cost_cell, rule_not_zero)
+
+        # Row 5: (%) Wage Percentage
+        ws[f'B{summary_start_row + 5}'] = '(%) Wage Percentage'
+        ws[f'B{summary_start_row + 5}'].font = Font(color="FFFFFF", size=11)
+        ws[f'B{summary_start_row + 5}'].fill = PatternFill(start_color="3A3838", end_color="3A3838", fill_type="solid")
+        ws[f'B{summary_start_row + 5}'].alignment = Alignment(horizontal='center', vertical='center')
+        ws[f'B{summary_start_row + 5}'].border = white_border
+        ws.row_dimensions[summary_start_row + 5].height = 26
+
+        # Wage Percentage calculation: Total Wage Cost / Total Sales
+        ws[f'C{summary_start_row + 5}'] = f'=C{summary_start_row + 4}/G{total_row}'
+        ws[f'C{summary_start_row + 5}'].fill = PatternFill(start_color="D9D9D9", end_color="D9D9D9", fill_type="solid")
+        ws[f'C{summary_start_row + 5}'].alignment = Alignment(horizontal='center', vertical='center')
+        ws[f'C{summary_start_row + 5}'].number_format = '0%'  # Format as percentage
+        ws[f'C{summary_start_row + 5}'].border = white_border
+        ws[f'C{summary_start_row + 5}'].font = Font(bold=True)
 
     def _apply_styling(self, ws):
         """

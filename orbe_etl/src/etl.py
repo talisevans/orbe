@@ -48,13 +48,13 @@ class Orbe_ETL:
             'ClientId',
             'ItemTypeStringCode',
             'ItemId',
-            'ItemName',
-            'ItemQuantity'
+            'ItemName'
         ], as_index=False, dropna=False).agg({
             'LineIncTaxAmount': 'sum',
             'LineExTaxAmount': 'sum',
             'TaxAmount': 'sum',
-            'Sale Product Quantity': 'sum'
+            'Sale Product Quantity': 'sum',
+            'ItemQuantity': 'sum'
         })
 
         # Lookup client information from clients_df
