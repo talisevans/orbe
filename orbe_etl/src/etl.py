@@ -23,6 +23,16 @@ class Orbe_ETL:
         self.staff_df = staff_df
         self.reporting_categories = reporting_categories
 
+        # Add the 'ReportCategory' to the sales_transactions_df dataframe
+        self.sales_transactions_df['ReportCategory'] = self.sales_transactions_df.apply(
+            lambda row: self.get_item_report_category(row['ItemId'])
+                       if row['ItemTypeStringCode'] == 'ItemType.Service'  # lookup the item if it's an item
+                       else 'Product' if row['ItemTypeStringCode'] == 'ItemType.Product' # set to 'Product' if it's a product
+                       else 'Prepayment' if row['ItemTypeStringCode'] == 'ItemType.BookingPrepayment' # set to 'Other' if it's a prepayment
+                       else None,
+            axis=1
+        )
+
     # build the detailed dataset
     def build_detail_dataset(self):
 
@@ -137,8 +147,10 @@ class Orbe_ETL:
         Returns a dataframe with columns: AppointmentDate, CustomerId, EmployeeId,
         is_new_client, is_rebooked.
 
-        For appointments with multiple staff, the employee is determined by finding
-        which employee had the highest spend for that client on that date.
+        For appointments with multiple staff, the employee is determined by:
+        1. First checking if there are any items with ReportCategory in ['Cuts', 'Mens Cuts', 'Child Cuts']
+        2. If yes, finding the employee with the highest spend in those categories
+        3. If no, finding the employee with the highest spend across all items for that client on that date
 
         Returns:
             DataFrame with rebooking data, or None if appointments_df is None
@@ -221,8 +233,16 @@ class Orbe_ETL:
             if len(matching_sales) == 0:
                 return None
 
-            # Group by EmployeeId and sum the spend (using LineIncTaxAmount)
-            employee_spend = matching_sales.groupby('EmployeeId')['LineIncTaxAmount'].sum()
+            # Check if there are any sales with ReportCategory in ['Cuts', 'Mens Cuts', 'Child Cuts']
+            cut_categories = ['Cuts', 'Mens Cuts', 'Child Cuts']
+            cut_sales = matching_sales[matching_sales['ReportCategory'].isin(cut_categories)]
+
+            # If there are cut sales, find the employee with highest spend in those categories
+            if len(cut_sales) > 0:
+                employee_spend = cut_sales.groupby('EmployeeId')['LineIncTaxAmount'].sum()
+            else:
+                # Otherwise, find the employee with highest spend across all sales
+                employee_spend = matching_sales.groupby('EmployeeId')['LineIncTaxAmount'].sum()
 
             # Return the EmployeeId with the highest spend
             return employee_spend.idxmax()

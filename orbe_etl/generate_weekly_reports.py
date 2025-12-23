@@ -118,6 +118,16 @@ for location in ["nth_adl"]:
     # proper name lookup
     location_name = location_name_mappings[location]
 
+    """
+        Uses the following Parquet files from the GCP Bucket:
+        - AppointmentAll
+        - SaleTransactionLine
+        - Client
+        - EmployeeSite
+        - ServiceSiteReportCategories
+
+    """
+
     # Get data from GCP Bucket
     print('Fetching data from GCP Bucket...')
     appointments_df = GCPBucket.getAppointments("nth_adl")
