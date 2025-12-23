@@ -181,17 +181,17 @@ syncTableDeltas( bucket, sqlsvrCursor, 'SaleTransactionLine', 'dbo.scvSaleTransa
 print('Starting Appointment All table')
 syncTableDeltas( bucket, sqlsvrCursor, 'AppointmentAll', 'dbo.scvAppointmentAll', 'AppointmentDate', syncPeriodDate )
 
-# Get Sale Transactions
-print('Starting Sale Transactions')
-syncTableDeltas( bucket, sqlsvrCursor, 'SaleTransaction', 'dbo.scvSaleTransaction', 'TransactionDate', syncPeriodDate )
+# # Get Sale Transactions
+# print('Starting Sale Transactions')
+# syncTableDeltas( bucket, sqlsvrCursor, 'SaleTransaction', 'dbo.scvSaleTransaction', 'TransactionDate', syncPeriodDate )
 
-# Get Appointments
-print('Starting Appointments table')
-syncTableDeltas( bucket, sqlsvrCursor, 'Appointment', 'dbo.scvAppointment', 'AppointmentDate', syncPeriodDate )
+# # Get Appointments
+# print('Starting Appointments table')
+# syncTableDeltas( bucket, sqlsvrCursor, 'Appointment', 'dbo.scvAppointment', 'AppointmentDate', syncPeriodDate )
 
-# Get the Appointments Recurring table
-print('Starting Appointments recurring table')
-syncTableDeltas( bucket, sqlsvrCursor, 'AppointmentRecurAll', 'dbo.scvAppointmentRecurAll', 'AppointmentDate', syncPeriodDate )
+# # Get the Appointments Recurring table
+# print('Starting Appointments recurring table')
+# syncTableDeltas( bucket, sqlsvrCursor, 'AppointmentRecurAll', 'dbo.scvAppointmentRecurAll', 'AppointmentDate', syncPeriodDate )
 
 # Get Clients
 print('Starting Clients')
@@ -201,33 +201,33 @@ syncFullTable( bucket, sqlsvrCursor, 'Client', 'dbo.scvClient' )
 print('Starting Employee Site Table')
 syncFullTable( bucket, sqlsvrCursor, 'EmployeeSite', 'dbo.scvEmployeeSite' )
 
-# Get Payments by Date Client table
-print('Starting Payments by Date Client table')
-syncTableDeltas( bucket, sqlsvrCursor, 'PaymentsByDateClient', 'dbo.scvPaymentsByDateClient', 'PaymentDate', syncPeriodDate )
+# # Get Payments by Date Client table
+# print('Starting Payments by Date Client table')
+# syncTableDeltas( bucket, sqlsvrCursor, 'PaymentsByDateClient', 'dbo.scvPaymentsByDateClient', 'PaymentDate', syncPeriodDate )
 
-# Get Sale Product by Date table
-print('Starting Sale Product by Date')
-syncTableDeltas( bucket, sqlsvrCursor, 'SalesProductByDate', 'dbo.scvSalesProductByDate', 'SaleDate', syncPeriodDate )
+# # Get Sale Product by Date table
+# print('Starting Sale Product by Date')
+# syncTableDeltas( bucket, sqlsvrCursor, 'SalesProductByDate', 'dbo.scvSalesProductByDate', 'SaleDate', syncPeriodDate )
 
-# get Sale Service by Date table
-print('Starting Sale Service by Date')
-syncTableDeltas( bucket, sqlsvrCursor, 'SalesServiceByDate', 'dbo.scvSalesServiceByDate', 'SaleDate', syncPeriodDate )
+# # get Sale Service by Date table
+# print('Starting Sale Service by Date')
+# syncTableDeltas( bucket, sqlsvrCursor, 'SalesServiceByDate', 'dbo.scvSalesServiceByDate', 'SaleDate', syncPeriodDate )
 
-# Get sale transaction line discount table
-print('Starting Sale Transaction Line Discount')
-syncFullTable( bucket, sqlsvrCursor, 'SaleTransactionLineDiscount', 'dbo.scvSaleTransactionLineDiscount' )
+# # Get sale transaction line discount table
+# print('Starting Sale Transaction Line Discount')
+# syncFullTable( bucket, sqlsvrCursor, 'SaleTransactionLineDiscount', 'dbo.scvSaleTransactionLineDiscount' )
 
-# Get sale transaction payment table
-print('Starting Sale Transaction Payment')
-syncTableDeltas( bucket, sqlsvrCursor, 'SaleTransactionPayment', 'dbo.scvSaleTransactionPayment', 'TransactionDate', syncPeriodDate )
+# # Get sale transaction payment table
+# print('Starting Sale Transaction Payment')
+# syncTableDeltas( bucket, sqlsvrCursor, 'SaleTransactionPayment', 'dbo.scvSaleTransactionPayment', 'TransactionDate', syncPeriodDate )
 
 # Get Sale Service Site Report table
 print('Starting Sale Service Site Report')
 syncFullTable( bucket, sqlsvrCursor, 'ServiceSiteReportCategory', 'dbo.scvServiceSiteReportCategory' )
 
-# Get Gift Certificates table
-print('Gift Certificates')
-syncFullTable( bucket, sqlsvrCursor, 'giftCertificates', 'dbo.giftCertificate' )
+# # Get Gift Certificates table
+# print('Gift Certificates')
+# syncFullTable( bucket, sqlsvrCursor, 'giftCertificates', 'dbo.giftCertificate' )
 
 # Job done
 print('All Done!')

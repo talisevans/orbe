@@ -109,14 +109,18 @@ GCPBucket = GCPBucket("orbe_shortcuts", "australia-southeast2")
 
 # declare proper location name lookups
 location_name_mappings = {
-    "nth_adl": "Orbe North Adelaide"
+    "nth_adl": "Orbe North Adelaide",
+    "norwood": "Orbe Norwood"
 }
 
 # loop through the different locations
-for location in ["nth_adl"]:
+for location in ["nth_adl","norwood"]:
 
     # proper name lookup
     location_name = location_name_mappings[location]
+
+    # Update Terminal
+    print(f'Generating report for {location_name}... ')
 
     """
         Uses the following Parquet files from the GCP Bucket:
@@ -124,18 +128,17 @@ for location in ["nth_adl"]:
         - SaleTransactionLine
         - Client
         - EmployeeSite
-        - ServiceSiteReportCategories
-
+        - ServiceSiteReportCategory
     """
 
     # Get data from GCP Bucket
     print('Fetching data from GCP Bucket...')
-    appointments_df = GCPBucket.getAppointments("nth_adl")
-    sales_transactions_df = GCPBucket.getSalesTransactions("nth_adl")
-    productive_hours_df = GCPBucket.getProductiveHours("nth_adl")
-    clients_df = GCPBucket.load_latest_parquet("Client", "nth_adl")
-    staff_df = GCPBucket.load_latest_parquet("EmployeeSite", "nth_adl")
-    reporting_categories = GCPBucket.load_latest_parquet("ServiceSiteReportCategories", "nth_adl")
+    appointments_df = GCPBucket.getAppointments(location)
+    sales_transactions_df = GCPBucket.getSalesTransactions(location)
+    productive_hours_df = GCPBucket.getProductiveHours(location)
+    clients_df = GCPBucket.load_latest_parquet("Client", location)
+    staff_df = GCPBucket.load_latest_parquet("EmployeeSite", location)
+    reporting_categories = GCPBucket.load_latest_parquet("ServiceSiteReportCategory", location)
 
     # Create the Orbe ETL object
     print('Building datasets...')
@@ -164,7 +167,8 @@ for location in ["nth_adl"]:
         productive_hours_df=productive_hours_df,
         clients_df=clients_df,
         staff_df=staff_df,
-        logo_path=logo_path
+        logo_path=logo_path,
+        store_name=location_name
     )
 
     # Generate all weeks up to last Sunday
@@ -183,4 +187,4 @@ for location in ["nth_adl"]:
         attachment_path='tmp/' + output_filename
     )
 
-    print("All Done!")
+print("All Done!")

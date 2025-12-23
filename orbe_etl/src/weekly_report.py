@@ -21,7 +21,7 @@ class WeeklyReportGenerator:
     Generates weekly performance reports in Excel format.
     """
 
-    def __init__(self, detail_df, rebooking_df, productive_hours_df, clients_df, staff_df, logo_path=None):
+    def __init__(self, detail_df, rebooking_df, productive_hours_df, clients_df, staff_df, logo_path=None, store_name=""):
         """
         Initialize the report generator with data.
 
@@ -37,8 +37,11 @@ class WeeklyReportGenerator:
         self.clients_df = clients_df
         self.staff_df = staff_df
         self.logo_path = logo_path
+        self.store_name = store_name
         self.timezone = ZoneInfo('Australia/Adelaide')
         self.workbook = Workbook()
+        
+        
         # Remove default sheet
         if 'Sheet' in self.workbook.sheetnames:
             self.workbook.remove(self.workbook['Sheet'])
@@ -206,10 +209,10 @@ class WeeklyReportGenerator:
 
         # Row 1: Gray background (thin spacer bar)
         ws.row_dimensions[1].height = 15
-
+        
         # Row 2: Title row "Orbe North Adelaide"
         ws.row_dimensions[2].height = 35
-        ws['B2'] = 'Orbe North Adelaide'
+        ws['B2'] = self.store_name
         ws['B2'].font = Font(color="FFFFFF", bold=True, size=14)
         ws['B2'].fill = PatternFill(start_color="3A3838", end_color="3A3838", fill_type="solid")
         ws['B2'].alignment = Alignment(horizontal='left', vertical='center')
